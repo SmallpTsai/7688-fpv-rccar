@@ -1,0 +1,189 @@
+<html>
+<head>
+<style type="text/css">
+* {
+     user-select: none;
+    -khtml-user-select: none;
+    -o-user-select: none;
+    -moz-user-select: -moz-none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+}
+
+#fpv {
+    position: absolute;
+    left:0;
+    top:0;
+}
+
+#msg_panel {
+  position: absolute;
+  top:100%;
+  margin:-25px 5px 0 0;
+}
+
+#state_panel {
+  position: absolute;
+  top:100%;
+  margin:-50px 5px 0 0;
+}
+
+#imgArrow {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  margin: -64px 0 0 -12px;
+  transform-origin: 50% 80%;
+  visibility: hidden;
+}
+
+</style>
+<script type="text/javascript">
+var touched = 0;
+var ws; // websocket
+var prev_th,prev_st;
+var mode = 0; // 1: control mode, 0: view mode
+
+function init()
+{
+  document.body.addEventListener("touchstart", function(evt) {
+    _down(evt.touches[0].pageX, evt.touches[0].pageY);
+  }, false);
+  document.body.addEventListener("touchend", _up, false);
+  document.body.addEventListener('touchmove', function(evt) {
+    evt.preventDefault();
+    _move(evt.touches[0].pageX, evt.touches[0].pageY);
+  }, false);
+
+  document.body.addEventListener('mousedown', function(evt) {
+    _down(evt.x, evt.y);
+  }, false);
+  document.body.addEventListener('mouseup', _up, false);
+  document.body.addEventListener('mousemove', function(evt) {
+    _move(evt.x, evt.y);
+  }, false);
+
+  var slog = document.getElementById("state_panel");
+  if("WebSocket" in window)
+  {
+    ws = new WebSocket("ws://"+window.location.hostname+":8001");
+    slog.innerHTML = "Connecting...";
+    ws.onopen = function() {
+      slog.innerHTML = "Connected";
+    };
+    ws.onclose = function() {
+      slog.innerHTML = "Disconnected:" + evt.data;
+    };
+    ws.onmessage = function(evt) {
+      slog.innerHTML = "Connected - " + evt.data;
+      if(evt.data == "control mode")
+        mode = 1;
+      _update();
+    }
+    ws.onerror = function(evt) {
+      log.innerHTML = "Error:" + evt.data;
+    }
+  }
+  else
+  {
+    ws = null;
+    slog.innerHTML = "WebSocket is not supported!";
+  }
+
+  var i = document.createElement("img");
+  document.getElementById("fpv").appendChild(i);
+  i.draggable = false;
+  i.style.width = 640;
+  i.style.height = 480;
+  i.src = "http://"+window.location.hostname+":8080/?action=stream";
+
+}
+
+function _down(_x, _y) {
+  if(!mode)
+    return;
+
+  touched = 1;
+  x = _x;
+  y = _y;
+
+  var obj = document.getElementById("imgArrow");
+  obj.style.left = x;
+  obj.style.top = y;
+  obj.style.visibility = 'visible';
+
+}
+
+function _up(evt) {
+  touched = 0;
+  var obj = document.getElementById("imgArrow");
+  obj.style.visibility = 'hidden';
+  obj.style.transform = "rotateZ(0deg) scaleY(1.0)";
+  _update();
+}
+
+function _move(_x, _y) {
+  if(touched && mode) {
+    var deltaX = _x - x;
+    var deltaY = _y - y;
+    var deg = Math.round(Math.atan2(deltaX, -deltaY) * (180/Math.PI));
+    var len = Math.round(Math.sqrt(deltaX*deltaX + deltaY*deltaY));
+
+    document.getElementById('msg_panel').innerHTML = "move:" + Math.round(deg) + "deg," + Math.round(len) + "px";
+
+    document.getElementById("imgArrow").style.transform = "rotateZ("+deg+"deg) scaleY("+len/64+")";
+
+    if(deg <= 90 && deg >= -90)
+    {
+      if(deg > 45) deg = 45;
+      if(deg < -45) deg = -45;
+      if(len > 200) len = 200;
+      wssend(Math.round(deg*100/45), Math.round(len/2));
+    }
+    else if(deg >= 135 || deg <= -135)
+    {
+      if(deg >= 135) deg = 180-deg;
+      if(deg <= -135) deg = -(180+deg);
+      if(len > 200) len = 200;
+      wssend(Math.round(deg*100/45), -Math.round(len/2));
+    }
+    else
+      wssend(0, 0); 
+  }
+}
+
+function _update() {
+  if(!touched) {
+
+    if(mode) {
+      document.getElementById("msg_panel").innerHTML = "Touch screen to start";
+      wssend(0,0);
+    }
+    else
+    {
+      document.getElementById("msg_panel").innerHTML = ""; 
+    }
+  }
+}
+
+function wssend(st, th) {
+  if(prev_st != st || prev_th != th)
+  {
+    ws.send([st, th]);
+    prev_st = st;
+    prev_th = th;
+  }
+}
+
+</script>
+</head>
+<body onload="init()">
+<div id='fpv'>
+</div>
+<div id='msg_panel'>
+</div>
+<div id='state_panel'>
+</div>
+<img src="arrow.png" draggable="false" id="imgArrow">
+</body>
+</html>
