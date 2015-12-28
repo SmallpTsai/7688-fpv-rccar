@@ -6,7 +6,7 @@ For a quick understanding what does this project do, please check:
 1. Youtube video
   * https://youtu.be/Q5iNWwBR6-w
 1. Google presentation
-  * https://docs.google.com/presentation/d/1W4fsnca05PapV2C2Cv5IJGIgZq1LsZD0wb2BNciWa9Y/edit?usp=sharing 
+  * https://goo.gl/3zruAJ 
 
 Quick references:
 
