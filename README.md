@@ -8,6 +8,14 @@ For a quick understanding what does this project do, please check:
 1. Google presentation
   * https://docs.google.com/presentation/d/1W4fsnca05PapV2C2Cv5IJGIgZq1LsZD0wb2BNciWa9Y/edit?usp=sharing 
 
+Quick references:
+
+* [Software part](#software-setup-instruction)
+* [Hardware part](#hardware-setup-instruction)
+
+![main](_images/main.jpg)
+
+
 ## Software Setup Instruction
 1. as root, do `npm install ws`
 1. put fpvcarsrv.js to `/root`
@@ -36,7 +44,7 @@ starting node server ... done
 4. Click the `/car` hyperlink or goes to "http://*hostname*/car"
 
 
-## Files
+## Sources Files
 
 ### init.cgi
 
@@ -77,3 +85,7 @@ it require websocket package, please do “`npm install ws`”
   * It will wait for server ack, and know its role as controller or viewer.
   * In controller’s case, it will monitor touch moving or mouse dragging. and send correponding command to websocket server created in fpvcarsrv.js
   * In viewer’s case, it will do nothing
+
+## Hardware Setup Instruction
+
+
