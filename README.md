@@ -53,16 +53,17 @@ starting node server ... done
 #### setup
 `chmod 755 init.cgi`
 #### note
-init.cgi is written with Python, it is responsible for (re)start mjpg-streamer and websocket server if anything goes wrong.
+init.cgi is written with **Python**, it is responsible for (re)start mjpg-streamer and websocket server if anything goes wrong.
 
 ### fpvcarsrv.js
 #### where
 `/root`
 #### setup
-it require websocket package, please do “`npm install ws`” 
-(setup 7688 to station mode and connect to a AP with network access to do so)
+it require **websocket** package, please do “`npm install ws`” 
+(remember to setup 7688 to station mode and connect to a AP with network access to do so)
 #### note
-* It start websocket server at port 8001
+* fpvcarsrv.js is written with **Node JS**, it is responsible for starting a server allowing client to control the ESC/Servo.
+* It starts websocket server at port 8001
 * Only the first connection can control the vehicle, the other connection will be viewer. 
 * ESC (Throttle) is connected to PWM0 (pin18) of 7688
 * Servo (Steering) is connected to PWM1 (pin19) of 7688
@@ -80,12 +81,31 @@ it require websocket package, please do “`npm install ws`”
   * Chrome on Macbook (OS 10.11): ok
   * Safari on iPhone6 (iOS 9.2): ok (**not ok** at iOS 9.1)
   * Chrome on iPhone6: **not ok**
-* this page will create a <IMG> element with src = http://*hostname*:8080/
-* this page will also create websocket connection to http://*hostname*:8001/ 
+* This page will create a <IMG> element with src = http://*hostname*:8080/
+* This page will also create websocket connection to http://*hostname*:8001/ 
   * It will wait for server ack, and know its role as controller or viewer.
   * In controller’s case, it will monitor touch moving or mouse dragging. and send correponding command to websocket server created in fpvcarsrv.js
   * In viewer’s case, it will do nothing
 
 ## Hardware Setup Instruction
+
+#### Original RC configuration
+![rc_original.png](_images/rc_original.png)
+Transmitter sends signal to Receiver and control steering(Servo) and throttle(ESC)
+
+#### Modififed 7688 configuration
+![rc_modified.png](_images/rc_modified.png)
+7688 replace Receiver, receive control command from Wi-Fi device and control steering(Servo) and throttle(ESC), it also connect to a USB camera to provide FPV service.
+
+#### Diagram
+![hw_diagram.png](_images/hw_diagram.png)
+7688 and Webcam are on the car shell, it connect to the car body via a 4-line wire (5V/Servo signal/ESC signal/GND).
+The 5V voltage regulator board on car body help to provide 7.4v->5v regulation.
+
+#### 5V voltage regulator board
+![board_detail1.png](_images/board_detail1.png)
+
+#### 7688 socket board
+![board_detail2.png](_images/board_detail2.png)
 
 
